@@ -13,14 +13,19 @@ const HomePage = (props) => {
   const dispatch= useDispatch()
   const [loadMoreItem, setLoadMoreItem] = useState(12); 
 
-    useEffect(() => {
-        axios
-          .get('https://restcountries.com/v2/all?fields=name,region,flag')
-          .then((response) => {
-            dispatch(sliceActions.setCountriesDetails(response.data))
-          })
+  const [filter, setFilter] = useState("All"); 
+
+
+      useEffect(() => {
+        axios.get('https://restcountries.com/v2/all?fields=name,region,flag').then((response) => {
+          let data = response.data;
+          if (filter && filter !== "All") {
+            data = response?.data?.filter((val) => val?.region === filter);
+          }
+          dispatch(sliceActions.setCountriesDetails(data))
+        });
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, []);
+      }, [filter]);
 
       const loadMoreFunction = () => {
         setLoadMoreItem((prev) => prev + 12);
@@ -28,7 +33,7 @@ const HomePage = (props) => {
 
   return (
   <Container className='p-2' style={{fontFamily:"Noto Sans"}}>
-<Header/>
+    <Header setFilter={setFilter} filter={filter}/>
       <Carousel className='mt-4'>
         {countryData?.slice(0, 4)?.map((item, index) => (
           <Carousel.Item key={index}>
